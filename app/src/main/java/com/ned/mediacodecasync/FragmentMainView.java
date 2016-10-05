@@ -3,6 +3,7 @@ package com.ned.mediacodecasync;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -13,9 +14,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Created by NedHuang on 2016/9/6.
@@ -35,9 +33,10 @@ public class FragmentMainView extends Fragment {
     private TextView mTxtPlayTime, mTxtDuration;
 
     private MediaCodecPlayer mMediaCodecPlayer = null;
-    private String mPath = "/mnt/usbdisk/usbdisk4/CH01/01-20160420_083130.mp4";
-    private Timer mTimer = null;
-    private MyTimerTask mTimerTask = null;
+    private String mPath = "/mnt/usbdisk/usb-disk2/CH01/01-20160420_083130.mp4";
+//    private Timer mTimer = null;
+//    private MyTimerTask mTimerTask = null;
+    private HandlerThread mUpdatePlayTimeHandlerThread = null;
     private static final int UPDATE_TIMER = 0;
 
     @Override
@@ -77,6 +76,7 @@ public class FragmentMainView extends Fragment {
         mSurView[3] = (SurfaceView) mVf.findViewById(R.id.surview4);
         mTxtPlayTime = (TextView) mVf.findViewById(R.id.txt_playtime);
         mTxtDuration = (TextView) mVf.findViewById(R.id.txt_duration);
+        mUpdatePlayTimeHandlerThread = new HandlerThread("updatePlayTime");
     }
 
     private SeekBar.OnSeekBarChangeListener mOnSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
@@ -137,37 +137,31 @@ public class FragmentMainView extends Fragment {
         }
 
         private void updateTimeBarInfo() {
-            mTimer = new Timer();
-            mTimerTask = new MyTimerTask();
-            mTimer.schedule(mTimerTask, 50, 50);
+            mUpdatePlayTimeHandlerThread.start();
             mTxtPlayTime.setText(changeTimeFormat((int) mMediaCodecPlayer.getPresentation()));
             mSeekBar.setMax((int) mMediaCodecPlayer.getDuration());
             mTxtDuration.setText(changeTimeFormat((int) mMediaCodecPlayer.getDuration()));
-        }
-    };
-
-    private class MyTimerTask extends TimerTask {
-        @Override
-        public void run() {
-            mHandler.sendEmptyMessage(UPDATE_TIMER);
-        }
-    }
-
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case UPDATE_TIMER:
-                    if (mMediaCodecPlayer != null) {
-                        mSeekBar.setProgress((int) mMediaCodecPlayer.getPresentation());
-                    } else {
-                        mSeekBar.setProgress(0);
+            mUpdatePlayTimeHandler = new Handler(mUpdatePlayTimeHandlerThread.getLooper()) {
+                @Override
+                public void handleMessage(Message msg) {
+                    super.handleMessage(msg);
+                    switch (msg.what) {
+                        case UPDATE_TIMER:
+                            if (mMediaCodecPlayer != null) {
+                                mSeekBar.setProgress((int) mMediaCodecPlayer.getPresentation());
+                            } else {
+                                mSeekBar.setProgress(0);
+                            }
+                            break;
                     }
-                    break;
-            }
+                    mUpdatePlayTimeHandler.sendEmptyMessage(UPDATE_TIMER);
+                }
+            };
+            mUpdatePlayTimeHandler.sendEmptyMessage(UPDATE_TIMER);
         }
     };
+
+    private Handler mUpdatePlayTimeHandler = null;
 
     private String changeTimeFormat(int time) {
         String sMinute = "" + (time / 60000000);

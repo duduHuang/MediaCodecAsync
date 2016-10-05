@@ -250,11 +250,11 @@ public class MediaCodecWork {
 
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         private void fillVideoBuffer() {
-//            ByteBuffer[] decoderBuffer = mDecoderVideo.getInputBuffers();
+            ByteBuffer[] decoderBuffer = mDecoderVideo.getInputBuffers();
             int videoBufIndex = mDecoderVideo.dequeueInputBuffer(TIMEOUT_USED);
             if (videoBufIndex >= 0) {
-//                ByteBuffer videoBuf = decoderBuffer[videoBufIndex];
-                ByteBuffer videoBuf = mDecoderVideo.getInputBuffer(videoBufIndex);
+                ByteBuffer videoBuf = decoderBuffer[videoBufIndex];
+//                ByteBuffer videoBuf = mDecoderVideo.getInputBuffer(videoBufIndex);
                 videoBuf.clear();
                 int videoChunkSize = mExtractor.readSampleData(videoBuf, 0);
                 if (videoChunkSize < 0) {
@@ -269,11 +269,11 @@ public class MediaCodecWork {
 
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         private void fillAudioBuffer() {
-//            ByteBuffer[] decoderBuffer = mDecoderAudio.getInputBuffers();
+            ByteBuffer[] decoderBuffer = mDecoderAudio.getInputBuffers();
             int audioBufIndex = mDecoderAudio.dequeueInputBuffer(TIMEOUT_USED);
             if (audioBufIndex >= 0) {
-//                ByteBuffer audioBuf = decoderBuffer[audioBufIndex];
-                ByteBuffer audioBuf = mDecoderAudio.getInputBuffer(audioBufIndex);
+                ByteBuffer audioBuf = decoderBuffer[audioBufIndex];
+//                ByteBuffer audioBuf = mDecoderAudio.getInputBuffer(audioBufIndex);
                 audioBuf.clear();
                 int audioChunkSize = mExtractor.readSampleData(audioBuf, 0);
                 if (audioChunkSize < 0) {
@@ -312,11 +312,11 @@ public class MediaCodecWork {
 
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         private void emptyAudioBuffer() {
-//            ByteBuffer[] decoderBuffer = mDecoderAudio.getOutputBuffers();
+            ByteBuffer[] decoderBuffer = mDecoderAudio.getOutputBuffers();
             int decoderStatus = mDecoderAudio.dequeueOutputBuffer(mInfoAudio, TIMEOUT_USED);
             if (decoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
             } else if (decoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
-//                decoderBuffer = mDecoderAudio.getInputBuffers();
+                decoderBuffer = mDecoderAudio.getInputBuffers();
             } else if (decoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                 mPlayAudioTrack.setPlaybackRate(mFormatAudio.getInteger(MediaFormat.KEY_SAMPLE_RATE));
             } else if (decoderStatus < 0) {
@@ -325,8 +325,8 @@ public class MediaCodecWork {
 
                 }
                 if (decoderStatus >= 0) {
-//                    ByteBuffer buffer = decoderBuffer[decoderStatus];
-                    ByteBuffer buffer = mDecoderAudio.getOutputBuffer(decoderStatus);
+                    ByteBuffer buffer = decoderBuffer[decoderStatus];
+//                    ByteBuffer buffer = mDecoderAudio.getOutputBuffer(decoderStatus);
                     byte[] chunk = new byte[mInfoAudio.size];
                     buffer.get(chunk);
                     mPlayAudioTrack.write(chunk, 0, chunk.length);
