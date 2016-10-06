@@ -21,21 +21,19 @@ import android.widget.TextView;
 public class FragmentMainView extends Fragment {
 
     private final static String TAG = "FragmentMainView";
-    private View mVf;
-    private ViewGroup mVg;
+    private View mVf = null;
+    private ViewGroup mVg = null;
     private FragmentMainView instance = this;
 
     private final static int sSurViewNumber = 4;
-    private Button mBtnExit, mBtnPlay, mBtnStop;
+    private Button mBtnExit = null, mBtnPlay = null, mBtnStop = null;
     private SurfaceView[] mSurView = new SurfaceView[sSurViewNumber];
     private Surface[] mSurface = new Surface[sSurViewNumber];
-    private SeekBar mSeekBar;
-    private TextView mTxtPlayTime, mTxtDuration;
+    private SeekBar mSeekBar = null;
+    private TextView mTxtPlayTime = null, mTxtDuration = null;
 
     private MediaCodecPlayer mMediaCodecPlayer = null;
     private String mPath = "/mnt/usbdisk/usb-disk2/CH01/01-20160420_083130.mp4";
-//    private Timer mTimer = null;
-//    private MyTimerTask mTimerTask = null;
     private HandlerThread mUpdatePlayTimeHandlerThread = null;
     private static final int UPDATE_TIMER = 0;
 
